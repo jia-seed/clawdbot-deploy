@@ -688,3 +688,17 @@ ssh root@YOUR_VM_IP "for i in 1 2 3; do echo \"Instance \$i: \$(systemctl is-act
 
 # 15. Test in Discord: @YourBotName hello
 ```
+
+---
+
+## Shared Memory System
+
+The bots share a git-backed knowledge base at `/opt/clawdbot-memory/` that persists across crashes and restarts. Memories auto-sync to a private GitHub repo every 5 minutes.
+
+**Quick setup:**
+```bash
+scp setup_shared_memory.sh sync-memory.sh root@YOUR_VM_IP:/root/
+ssh root@YOUR_VM_IP "chmod +x /root/setup_shared_memory.sh /root/sync-memory.sh && bash /root/setup_shared_memory.sh"
+```
+
+See **[SHARED_MEMORY.md](SHARED_MEMORY.md)** for full documentation.
