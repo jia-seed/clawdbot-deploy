@@ -1,6 +1,20 @@
 # Discord Bot Setup for Claude Code (Clawdbot)
 
-A complete guide to connecting Claude Code (Clawdbot) to Discord. This covers single-bot setups and multi-bot deployments.
+A complete guide to connecting Claude Code (Clawdbot) to Discord. This covers single-bot setups, multi-bot deployments, GitHub integration, and full configuration.
+
+---
+
+## Table of Contents
+
+1. [Quick Start](#quick-start-5-minutes)
+2. [Full Discord Setup](#full-setup-guide)
+3. [Claude Code Configuration](#claude-code-configuration)
+4. [GitHub Integration](#github-integration)
+5. [Configuration Options](#configuration-options)
+6. [Troubleshooting](#troubleshooting)
+7. [Multi-Bot Setup](#multi-bot-setup-multiple-instances)
+8. [Bot Personas](#bot-personas)
+9. [Architecture](#architecture)
 
 ---
 
@@ -105,6 +119,206 @@ in discord, mention your bot:
 ```
 
 it should respond within a few seconds.
+
+---
+
+## Claude Code Configuration
+
+### Initial Setup (Onboarding)
+
+first time setup:
+
+```bash
+clawdbot onboard
+```
+
+this walks you through:
+- selecting an AI provider (anthropic, openai, etc.)
+- adding API keys
+- setting up your workspace
+- configuring the gateway
+
+### API Keys
+
+add your AI provider API key:
+
+```bash
+# anthropic (claude)
+clawdbot auth add --provider anthropic --api-key "sk-ant-..."
+
+# openai
+clawdbot auth add --provider openai --api-key "sk-..."
+
+# or set via environment variable
+export ANTHROPIC_API_KEY="sk-ant-..."
+```
+
+### Model Selection
+
+set your default model:
+
+```bash
+# use claude sonnet
+clawdbot config set agents.defaults.model.primary "anthropic/claude-sonnet-4-20250514"
+
+# use claude opus
+clawdbot config set agents.defaults.model.primary "anthropic/claude-opus-4-5"
+
+# use gpt-4
+clawdbot config set agents.defaults.model.primary "openai/gpt-4o"
+```
+
+### Workspace Configuration
+
+your bot's workspace is where it stores files, memories, and configs:
+
+```bash
+# default location
+~/.clawdbot/agents/main/workspace/
+
+# or set custom workspace
+clawdbot config set agents.defaults.workspace "/path/to/your/workspace"
+```
+
+key workspace files:
+- `SOUL.md` - bot personality and behavior
+- `USER.md` - info about you (the human)
+- `MEMORY.md` - long-term memories
+- `AGENTS.md` - how the bot should operate
+- `TOOLS.md` - tool-specific notes
+
+### Config File Location
+
+main config file:
+```
+~/.clawdbot/clawdbot.json
+```
+
+view current config:
+```bash
+clawdbot config get
+```
+
+edit directly:
+```bash
+nano ~/.clawdbot/clawdbot.json
+```
+
+### Example Config
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-20250514"
+      },
+      "workspace": "/opt/clawdbot/workspace"
+    }
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "groupPolicy": "open"
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "bind": "loopback"
+  }
+}
+```
+
+---
+
+## GitHub Integration
+
+let your bot push code, create branches, and manage repos.
+
+### Step 1: Generate SSH Key
+
+```bash
+# generate a new key pair
+ssh-keygen -t ed25519 -C "clawdbot" -f ~/.ssh/id_ed25519 -N ""
+
+# view the public key
+cat ~/.ssh/id_ed25519.pub
+```
+
+### Step 2: Add Key to GitHub
+
+1. go to https://github.com/settings/keys
+2. click "New SSH key"
+3. paste your public key
+4. click "Add SSH key"
+
+### Step 3: Configure Git
+
+```bash
+git config --global user.name "your-bot-name"
+git config --global user.email "bot@yourdomain.com"
+```
+
+### Step 4: Test Connection
+
+```bash
+ssh -T git@github.com
+```
+
+should see: "Hi username! You've successfully authenticated..."
+
+### Using GitHub from Your Bot
+
+once configured, your bot can:
+
+```bash
+# clone repos
+git clone git@github.com:user/repo.git
+
+# create branches
+git checkout -b new-feature
+
+# commit and push
+git add .
+git commit -m "add feature"
+git push origin new-feature
+```
+
+### GitHub CLI (Optional)
+
+for more advanced github operations:
+
+```bash
+# install gh cli
+brew install gh  # mac
+apt install gh   # ubuntu
+
+# authenticate
+gh auth login
+
+# now your bot can create PRs, issues, etc.
+gh pr create --title "New feature" --body "Description"
+gh issue create --title "Bug report" --body "Details"
+```
+
+### SSH Config for Multiple Keys
+
+if you have multiple github accounts:
+
+```bash
+# ~/.ssh/config
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+
+Host github-work
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_work
+```
+
+then clone with: `git clone git@github-work:org/repo.git`
 
 ---
 
