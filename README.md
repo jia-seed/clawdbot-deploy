@@ -1,6 +1,45 @@
 # Clawdbot 3-Instance VM Deployment
 
-**We deployed three independent Clawdbot (OpenClaw) AI agent instances on a Hetzner Cloud ARM server running Ubuntu 24.04 for ~€7.49/month, connected them to Discord, and configured them as specialized bots (Research, Ops, Strategy).** The entire process — from zero infrastructure to three Discord-connected bots — required the Hetzner CLI, two bash scripts, and a series of clawdbot CLI commands to onboard, enable the Discord plugin, and set group policy to open.
+Deploy Claude Code (Clawdbot) AI agents on a Hetzner Cloud server and connect them to Discord.
+
+---
+
+## Repository Structure
+
+```
+jiawdbots/
+├── README.md                 # this file - vm deployment guide
+├── docs/
+│   ├── CLAUDE_CODE_DISCORD_SETUP.md   # complete discord + github setup
+│   ├── DISCORD_BOT_SETUP.md           # detailed discord bot guide  
+│   ├── discord_setup_guide.md         # quick discord setup
+│   ├── SHARED_MEMORY.md               # multi-bot memory sharing
+│   └── CUSTOM_CHECKINS.md             # scheduled check-ins setup
+├── scripts/
+│   ├── deploy_clawdbot_vm.sh          # main vm deployment script
+│   ├── automate_discord_setup.sh      # discord automation
+│   ├── mac_tunnel_manager.sh          # ssh tunnel helper
+│   ├── multi_clawdbot_config.sh       # multi-instance config
+│   ├── setup_shared_memory.sh         # shared memory setup
+│   ├── setup_custom_checkins.sh       # check-ins automation
+│   └── sync-memory.sh                 # memory sync script
+└── config/
+    └── clawdbot_roles.json            # bot persona configs
+```
+
+---
+
+## Quick Links
+
+- [Discord + GitHub Setup](docs/CLAUDE_CODE_DISCORD_SETUP.md) - start here for full setup
+- [Discord Bot Setup](docs/DISCORD_BOT_SETUP.md) - detailed discord guide
+- [Shared Memory](docs/SHARED_MEMORY.md) - multi-bot memory sharing
+
+---
+
+## Overview
+
+Three independent Clawdbot instances on a Hetzner Cloud ARM server (~€7.49/month), connected to Discord as specialized bots (Research, Ops, Strategy).
 
 ---
 
