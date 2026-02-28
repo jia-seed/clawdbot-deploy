@@ -1,4 +1,4 @@
-/* Agent-Viz Dashboard — asillios design system */
+/* jiawdbot activity dashboard */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
@@ -10,9 +10,9 @@
     --text: #fafafa;
     --text-muted: #a3a3a3;
     --text-dim: #737373;
-    --teal: #14b8a6;
-    --teal-dark: #134e4a;
-    --teal-glow: rgba(20, 184, 166, 0.15);
+    --accent: #ffffff;
+    --accent-dark: #1a1a1a;
+    --accent-glow: rgba(255, 255, 255, 0.08);
     --red: #ef4444;
     --blue: #3b82f6;
     --green: #22c55e;
@@ -53,12 +53,6 @@ header h1 {
     letter-spacing: -0.02em;
 }
 
-.subtitle {
-    color: var(--text-dim);
-    font-size: 0.875rem;
-    margin-top: 4px;
-}
-
 /* Stats Bar */
 .stats-bar {
     display: flex;
@@ -82,7 +76,7 @@ header h1 {
     font-size: 1.75rem;
     font-weight: 600;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--teal);
+    color: var(--accent);
 }
 
 .stat-label {
@@ -94,8 +88,8 @@ header h1 {
 }
 
 .sync-btn {
-    background: var(--teal-dark);
-    border: 1px solid var(--teal);
+    background: var(--accent-dark);
+    border: 1px solid var(--accent);
     color: var(--text);
     padding: 8px 18px;
     border-radius: 8px;
@@ -107,8 +101,8 @@ header h1 {
 }
 
 .sync-btn:hover {
-    background: var(--teal-glow);
-    border-color: var(--teal);
+    background: var(--accent-glow);
+    border-color: var(--accent);
 }
 
 /* Main Layout */
@@ -223,8 +217,8 @@ header h1 {
 }
 
 .list-item:hover {
-    border-color: var(--teal);
-    background: var(--teal-glow);
+    border-color: var(--accent);
+    background: var(--accent-glow);
 }
 
 .list-item-title {
@@ -244,12 +238,12 @@ header h1 {
 .list-item-badge {
     display: inline-block;
     padding: 1px 8px;
-    background: var(--teal-dark);
-    border: 1px solid rgba(20, 184, 166, 0.3);
+    background: var(--accent-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     font-size: 0.7rem;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--teal);
+    color: var(--accent);
     margin-left: 6px;
 }
 
@@ -268,15 +262,15 @@ header h1 {
 .tool-name {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.85rem;
-    color: var(--teal);
+    color: var(--accent);
 }
 
 .tool-count {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
-    background: var(--teal-dark);
-    border: 1px solid rgba(20, 184, 166, 0.3);
-    color: var(--teal);
+    background: var(--accent-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--accent);
     padding: 2px 10px;
     border-radius: 20px;
 }
@@ -394,7 +388,7 @@ header h1 {
 }
 
 .timeline-item.tool-call::before {
-    background: var(--teal);
+    background: var(--accent);
 }
 
 .timeline-item.user-message::before {
@@ -410,7 +404,7 @@ header h1 {
 .timeline-type {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.8rem;
-    color: var(--teal);
+    color: var(--accent);
     margin: 3px 0;
 }
 
@@ -444,4 +438,4 @@ header h1 {
 
 .legend-dot.agent { background: var(--red); }
 .legend-dot.session { background: var(--blue); }
-.legend-dot.action { background: var(--teal); }
+.legend-dot.action { background: var(--green); }
