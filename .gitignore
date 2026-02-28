@@ -1,0 +1,6 @@
+# state files
+*.json
+!config/*.json
+
+# deploy keys
+.deploy-key/
