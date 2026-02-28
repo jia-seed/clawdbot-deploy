@@ -182,7 +182,7 @@ const GraphViz = {
                     from: e.from,
                     to: e.to,
                     arrows: { to: { enabled: true, scaleFactor: 0.3 } },
-                    color: { color: 'rgba(255,255,255,0.25)' },
+                    color: { color: 'rgba(255,255,255,0.7)' },
                     width: 1,
                     dashes: [4, 4],
                     smooth: { type: 'continuous' }
