@@ -165,7 +165,8 @@ class Neo4jClient:
                 MATCH (a:Agent)-[:HAS_SESSION]->(s:Session)
                 WITH a, s ORDER BY s.started_at DESC LIMIT $slimit
                 RETURN collect(DISTINCT {id: a.id, label: a.name, type: 'Agent'}) as agents,
-                       collect(DISTINCT {id: s.id, label: coalesce(s.label, s.id), type: 'Session'}) as sessions
+                       collect(DISTINCT {id: s.id, label: coalesce(s.label, s.id), type: 'Session',
+                                         channel: s.channel, model: s.model, started_at: s.started_at}) as sessions
             """, slimit=min(limit // 5, 15))
 
             record = result.single()
@@ -188,12 +189,18 @@ class Neo4jClient:
                 actions_result = session.run("""
                     MATCH (s:Session)-[:CONTAINS]->(ac:Action)
                     WHERE s.id IN $sids
-                    RETURN DISTINCT ac.id as id, coalesce(ac.name, ac.type) as label, 'Action' as type
+                    RETURN DISTINCT ac.id as id, coalesce(ac.name, ac.type) as label,
+                           'Action' as type, ac.type as action_type,
+                           ac.details as details, ac.timestamp as timestamp
                 """, sids=session_ids)
 
                 for r in actions_result:
                     if r["id"] and r["id"] not in node_ids:
-                        nodes.append({"id": r["id"], "label": r["label"], "type": r["type"]})
+                        nodes.append({
+                            "id": r["id"], "label": r["label"], "type": r["type"],
+                            "action_type": r["action_type"],
+                            "details": r["details"], "timestamp": r["timestamp"]
+                        })
                         node_ids.add(r["id"])
 
             # Step 3: Get edges scoped to our sessions
