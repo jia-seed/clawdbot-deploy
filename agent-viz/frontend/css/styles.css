@@ -1,6 +1,4 @@
 /* jiawdbot activity dashboard */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-
 @font-face {
     font-family: 'Satoshi';
     src: url('../fonts/Satoshi-Variable.woff2') format('woff2');
@@ -83,7 +81,7 @@ header h1 {
     display: block;
     font-size: 1.75rem;
     font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     color: var(--accent);
 }
 
@@ -250,7 +248,7 @@ header h1 {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     font-size: 0.7rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     color: var(--accent);
     margin-left: 6px;
 }
@@ -268,13 +266,13 @@ header h1 {
 }
 
 .tool-name {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     font-size: 0.85rem;
     color: var(--accent);
 }
 
 .tool-count {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     font-size: 0.8rem;
     background: var(--accent-dark);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -405,12 +403,12 @@ header h1 {
 
 .timeline-time {
     font-size: 0.7rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     color: var(--text-dim);
 }
 
 .timeline-type {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Satoshi', sans-serif;
     font-size: 0.8rem;
     color: var(--accent);
     margin: 3px 0;
