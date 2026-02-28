@@ -286,6 +286,57 @@ ssh root@YOUR_VM_IP "GOG_KEYRING_PASSWORD=clawdbot-gog-keyring \
 
 ---
 
+## Auto-Reply & Meeting Scheduling
+
+Each bot has a cron job (`email-monitor`) that runs every 15 minutes during business hours (Mon-Fri 8am-6pm PST) to:
+
+1. Check for unread emails in the last hour
+2. Classify each email (auto-reply, flag for jia, or skip)
+3. Auto-reply to scheduling requests, confirmations, and simple emails in jia's voice
+4. Check calendar before proposing meeting times
+5. Create calendar events for booked meetings
+6. Post a summary of all actions to the Discord channel
+
+### Jia's Availability (PST)
+- **Available:** 11am - 5pm, Monday through Friday
+- **Priority slots:** 11am - 3pm (suggested first)
+- **Tuesday exception:** Blocked 10:30am - 12:30pm
+
+### What gets auto-replied:
+- Meeting scheduling requests (proposes available times)
+- Meeting confirmations ("works!" / "sounds good!")
+- Simple thank yous and acknowledgments ("amazing!")
+- Open source contribution inquiries (links to GitHub)
+
+### What gets flagged (NOT auto-replied):
+- Money, legal, or contract discussions
+- Investor term sheets or investment decisions
+- Strategic decisions
+- Anything uncertain
+
+### Writing Style
+The bots reply in jia's exact voice: ultra casual, lowercase, brief. See `config/EMAIL_STYLE.md` for the full style profile built from analyzing 50+ of jia's sent emails.
+
+### Cron Job Details
+- **Schedule:** `*/15 8-18 * * 1-5` (every 15 min, Mon-Fri, 8am-6pm PST)
+- **Session:** isolated (doesn't pollute main chat context)
+- **Output:** Posted to Discord channel `1476798913372749836`
+- **Timeout:** 120 seconds per run
+
+### Managing the cron:
+```bash
+# List cron jobs
+ssh root@YOUR_VM_IP 'HOME=/opt/clawdbot-1 CLAWDBOT_STATE_DIR=/opt/clawdbot-1/.clawdbot CLAWDBOT_CONFIG_PATH=/opt/clawdbot-1/.clawdbot/clawdbot.json clawdbot cron list'
+
+# Disable email monitor
+ssh root@YOUR_VM_IP 'HOME=/opt/clawdbot-1 CLAWDBOT_STATE_DIR=/opt/clawdbot-1/.clawdbot CLAWDBOT_CONFIG_PATH=/opt/clawdbot-1/.clawdbot/clawdbot.json clawdbot cron disable <job-id>'
+
+# Force run now (for testing)
+ssh root@YOUR_VM_IP 'HOME=/opt/clawdbot-1 CLAWDBOT_STATE_DIR=/opt/clawdbot-1/.clawdbot CLAWDBOT_CONFIG_PATH=/opt/clawdbot-1/.clawdbot/clawdbot.json clawdbot cron run <job-id> --force --expect-final'
+```
+
+---
+
 ## Reference
 
 - [gogcli GitHub](https://github.com/steipete/gogcli)

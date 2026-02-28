@@ -25,7 +25,9 @@ jiawdbots/
 │   ├── setup_custom_checkins.sh       # check-ins automation
 │   └── sync-memory.sh                 # memory sync script
 └── config/
-    └── clawdbot_roles.json            # bot persona configs
+    ├── clawdbot_roles.json            # bot persona configs
+    ├── EMAIL_STYLE.md                 # jia's email writing style profile
+    └── EMAIL_RULES.md                 # auto-reply & scheduling rules
 ```
 
 ---
