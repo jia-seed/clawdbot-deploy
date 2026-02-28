@@ -11,10 +11,11 @@ jiawdbots/
 ├── README.md                 # this file - vm deployment guide
 ├── docs/
 │   ├── CLAUDE_CODE_DISCORD_SETUP.md   # complete discord + github setup
-│   ├── DISCORD_BOT_SETUP.md           # detailed discord bot guide  
+│   ├── DISCORD_BOT_SETUP.md           # detailed discord bot guide
 │   ├── discord_setup_guide.md         # quick discord setup
 │   ├── SHARED_MEMORY.md               # multi-bot memory sharing
-│   └── CUSTOM_CHECKINS.md             # scheduled check-ins setup
+│   ├── CUSTOM_CHECKINS.md             # scheduled check-ins setup
+│   └── GOOGLE_WORKSPACE_SETUP.md     # gmail & calendar integration
 ├── scripts/
 │   ├── deploy_clawdbot_vm.sh          # main vm deployment script
 │   ├── automate_discord_setup.sh      # discord automation
@@ -34,6 +35,7 @@ jiawdbots/
 - [Discord + GitHub Setup](docs/CLAUDE_CODE_DISCORD_SETUP.md) - start here for full setup
 - [Discord Bot Setup](docs/DISCORD_BOT_SETUP.md) - detailed discord guide
 - [Shared Memory](docs/SHARED_MEMORY.md) - multi-bot memory sharing
+- [Google Workspace (Gmail & Calendar)](docs/GOOGLE_WORKSPACE_SETUP.md) - email & calendar integration
 
 ---
 
@@ -59,6 +61,8 @@ Three independent Clawdbot instances on a Hetzner Cloud ARM server (~€7.49/mon
 13. [Security Model](#security-model)
 14. [Costs](#costs)
 15. [Common Errors & Fixes](#common-errors--fixes)
+16. [Shared Memory System](#shared-memory-system)
+17. [Google Workspace (Gmail & Calendar)](#google-workspace-gmail--calendar)
 
 ---
 
@@ -383,14 +387,19 @@ ssh -L 8081:127.0.0.1:18789 \
 ├── clawdbot-1/                     # Instance 1 (port 18789)
 │   ├── .env                        # API key + port config (mode 600)
 │   ├── .clawdbot/
-│   │   ├── clawdbot.json           # Main config (plugins, channels, groupPolicy)
+│   │   ├── clawdbot.json           # Main config (plugins, channels, skills)
 │   │   ├── credentials/            # OAuth/token storage
 │   │   └── agents/main/sessions/   # Conversation sessions
 │   └── workspace/                  # Agent workspace
 ├── clawdbot-2/                     # Instance 2 (port 18790)
 │   └── ...
-└── clawdbot-3/                     # Instance 3 (port 18795)
-    └── ...
+├── clawdbot-3/                     # Instance 3 (port 18795)
+│   └── ...
+├── clawdbot-shared/                # Shared config across instances
+│   └── .config/gogcli/             # Google Workspace credentials + tokens
+│       ├── credentials.json
+│       └── keyring/
+└── clawdbot-memory/                # Shared git-backed memory
 
 /etc/systemd/system/
 └── clawdbot@.service               # Template unit (one file, N instances)
@@ -741,3 +750,38 @@ ssh root@YOUR_VM_IP "chmod +x /root/setup_shared_memory.sh /root/sync-memory.sh 
 ```
 
 See **[SHARED_MEMORY.md](SHARED_MEMORY.md)** for full documentation.
+
+---
+
+## Google Workspace (Gmail & Calendar)
+
+The bots can read/send emails and manage Google Calendar via the bundled `gog` skill, which wraps [`gogcli`](https://github.com/steipete/gogcli).
+
+| Instance | Bot | Default Google Account |
+|----------|-----|------------------------|
+| #1 | @cornbread | jiachiachen@gmail.com |
+| #2 | @ricebread | audgeviolin07@gmail.com |
+| #3 | @ubebread | jia@spreadjam.com |
+
+**Quick setup:**
+```bash
+# Install gog binary
+ssh root@YOUR_VM_IP 'curl -sL https://github.com/steipete/gogcli/releases/download/v0.11.0/gogcli_0.11.0_linux_arm64.tar.gz | tar xz -C /usr/local/bin && chmod +x /usr/local/bin/gog'
+
+# Upload OAuth credentials (create at Google Cloud Console first)
+scp client_secret_*.json root@YOUR_VM_IP:/tmp/client_secret.json
+ssh root@YOUR_VM_IP "gog auth credentials set /tmp/client_secret.json"
+
+# Authenticate each account (headless two-step flow)
+ssh root@YOUR_VM_IP "GOG_KEYRING_PASSWORD=clawdbot-gog-keyring gog auth add user@gmail.com --services gmail,calendar --remote --step 1"
+# Open URL in browser, authorize, copy redirect URL, then:
+ssh root@YOUR_VM_IP "GOG_KEYRING_PASSWORD=clawdbot-gog-keyring gog auth add user@gmail.com --services gmail,calendar --remote --step 2 --auth-url 'REDIRECT_URL'"
+```
+
+**Test in Discord:**
+```
+@cornbread check my email from the last 24 hours
+@ricebread what's on my calendar today?
+```
+
+See **[GOOGLE_WORKSPACE_SETUP.md](docs/GOOGLE_WORKSPACE_SETUP.md)** for the complete setup guide, troubleshooting, and how to add new accounts.
