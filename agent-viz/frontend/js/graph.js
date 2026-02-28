@@ -48,15 +48,36 @@ const GraphViz = {
                 });
             }
 
+            // Sort nodes by timestamp to assign hierarchical levels
+            const sorted = [...data.nodes].sort((a, b) => {
+                const ta = a.timestamp || a.createdAt || a.startedAt || '';
+                const tb = b.timestamp || b.createdAt || b.startedAt || '';
+                return ta.localeCompare(tb);
+            });
+
+            // Assign levels: Agents at top, then Sessions, then Actions by time
+            const levelMap = {};
+            let actionLevel = 2;
+            sorted.forEach(n => {
+                if (n.type === 'Agent') {
+                    levelMap[n.id] = 0;
+                } else if (n.type === 'Session') {
+                    levelMap[n.id] = 1;
+                } else {
+                    levelMap[n.id] = actionLevel++;
+                }
+            });
+
             const nodes = new vis.DataSet(
                 data.nodes.map(n => ({
                     id: n.id,
                     label: (n.label || n.id).substring(0, 35),
+                    level: levelMap[n.id] || 0,
                     color: n.type === 'Agent' ? '#e94560' :
-                           n.type === 'Session' ? '#0fbcf9' : '#00d9a5',
+                           n.type === 'Session' ? '#0fbcf9' : '#ffffff',
                     shape: n.type === 'Agent' ? 'dot' :
-                           n.type === 'Session' ? 'diamond' : 'triangle',
-                    size: n.type === 'Agent' ? 30 : n.type === 'Session' ? 18 : 10,
+                           n.type === 'Session' ? 'diamond' : 'dot',
+                    size: n.type === 'Agent' ? 30 : n.type === 'Session' ? 18 : 8,
                     font: { color: '#ffffff', size: 10 }
                 }))
             );
@@ -66,7 +87,8 @@ const GraphViz = {
                     from: e.source,
                     to: e.target,
                     arrows: 'to',
-                    color: { color: '#555', opacity: 0.6 }
+                    color: { color: '#555', opacity: 0.6 },
+                    smooth: { type: 'cubicBezier', roundness: 0.4 }
                 }))
             );
 
@@ -75,14 +97,18 @@ const GraphViz = {
             }
 
             networkInstance = new vis.Network(container, { nodes, edges }, {
+                layout: {
+                    hierarchical: {
+                        direction: 'UD',
+                        sortMethod: 'directed',
+                        levelSeparation: 60,
+                        nodeSpacing: 30,
+                        treeSpacing: 80,
+                        shakeTowards: 'roots'
+                    }
+                },
                 physics: {
-                    enabled: true,
-                    solver: 'forceAtlas2Based',
-                    forceAtlas2Based: {
-                        gravitationalConstant: -80,
-                        springLength: 120
-                    },
-                    stabilization: { iterations: 150 }
+                    enabled: false
                 },
                 interaction: {
                     hover: true,
