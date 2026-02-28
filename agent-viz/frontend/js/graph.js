@@ -115,17 +115,59 @@ const GraphViz = {
                 }
             });
 
+            // Build rich labels with metadata
+            function buildLabel(n) {
+                if (n.type === 'Agent') return n.label || n.id;
+                if (n.type === 'Session') {
+                    let label = (n.label || n.id).substring(0, 40);
+                    if (n.model) label += '\n' + n.model;
+                    if (n.channel) label += ' · ' + n.channel;
+                    return label;
+                }
+                // Action nodes
+                let lines = [];
+                const name = n.label || n.action_type || n.id;
+                const atype = n.action_type || '';
+                lines.push(atype !== name ? `${atype}: ${name}` : name);
+                if (n.details) {
+                    try {
+                        const d = typeof n.details === 'string' ?
+                            n.details.replace(/'/g, '"') : n.details;
+                        const parsed = JSON.parse(d);
+                        if (parsed.tool) lines[0] = parsed.tool;
+                        if (parsed.args_preview) {
+                            const args = parsed.args_preview.substring(0, 60);
+                            lines.push(args);
+                        }
+                    } catch(e) {
+                        const detail = String(n.details).substring(0, 60);
+                        if (detail && detail !== '{}') lines.push(detail);
+                    }
+                }
+                if (n.timestamp) {
+                    const t = new Date(n.timestamp);
+                    lines.push(t.toLocaleTimeString());
+                }
+                return lines.join('\n');
+            }
+
             const nodes = new vis.DataSet(
                 data.nodes.map(n => ({
                     id: n.id,
-                    label: (n.label || n.id).substring(0, 30),
+                    label: buildLabel(n),
                     level: levelMap[n.id],
                     color: n.type === 'Agent' ? '#e94560' :
                            n.type === 'Session' ? '#0fbcf9' : '#ffffff',
                     shape: n.type === 'Agent' ? 'dot' :
                            n.type === 'Session' ? 'diamond' : 'dot',
-                    size: n.type === 'Agent' ? 28 : n.type === 'Session' ? 16 : 5,
-                    font: { color: '#ffffff', size: 9, face: 'Satoshi, sans-serif' }
+                    size: n.type === 'Agent' ? 28 : n.type === 'Session' ? 16 : 6,
+                    font: {
+                        color: '#ffffff',
+                        size: n.type === 'Action' ? 11 : 12,
+                        face: 'Satoshi, sans-serif',
+                        multi: 'text',
+                        align: 'center'
+                    }
                 }))
             );
 
@@ -150,9 +192,9 @@ const GraphViz = {
                     hierarchical: {
                         direction: 'UD',
                         sortMethod: 'directed',
-                        levelSeparation: 120,
-                        nodeSpacing: 100,
-                        treeSpacing: 120,
+                        levelSeparation: 180,
+                        nodeSpacing: 200,
+                        treeSpacing: 200,
                         shakeTowards: 'roots'
                     }
                 },
