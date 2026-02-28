@@ -171,16 +171,22 @@ const GraphViz = {
                 }))
             );
 
+            // Store edge pairs for the flowing animation
+            const edgePairs = displayEdges
+                .filter(e => nodeSet.has(e.source) && nodeSet.has(e.target))
+                .map(e => ({ from: e.source, to: e.target }));
+
             const edges = new vis.DataSet(
-                displayEdges
-                    .filter(e => nodeSet.has(e.source) && nodeSet.has(e.target))
-                    .map(e => ({
-                        from: e.source,
-                        to: e.target,
-                        arrows: { to: { enabled: true, scaleFactor: 0.4 } },
-                        color: { color: '#333', opacity: 0.4 },
-                        smooth: { type: 'cubicBezier', roundness: 0.5 }
-                    }))
+                edgePairs.map((e, i) => ({
+                    id: 'e' + i,
+                    from: e.from,
+                    to: e.to,
+                    arrows: { to: { enabled: true, scaleFactor: 0.3 } },
+                    color: { color: 'rgba(255,255,255,0.06)' },
+                    width: 1,
+                    dashes: [4, 4],
+                    smooth: { type: 'continuous' }
+                }))
             );
 
             if (networkInstance) {
@@ -206,6 +212,61 @@ const GraphViz = {
                     dragView: true
                 }
             });
+
+            // Flowing dashed line animation (inspired by minions workflow edges)
+            let flowOffset = 0;
+            const baseColor = [255, 255, 255];
+
+            // Layers: each has [dashLen, gapLen, opacity, delayOffset]
+            const layers = [
+                [8, 212, 0.5,  0],       // core (brightest)
+                [14, 206, 0.3, -3],      // leading fade
+                [20, 200, 0.15, 3],      // trailing fade 1
+                [30, 190, 0.08, 6],      // trailing fade 2
+                [40, 180, 0.04, 10],     // trailing fade 3
+            ];
+
+            networkInstance.on('afterDrawing', function(ctx) {
+                const positions = networkInstance.getPositions();
+                ctx.save();
+                ctx.lineCap = 'round';
+
+                edgePairs.forEach(e => {
+                    const from = positions[e.from];
+                    const to = positions[e.to];
+                    if (!from || !to) return;
+
+                    layers.forEach(([dashLen, gapLen, opacity, delay]) => {
+                        ctx.beginPath();
+                        ctx.setLineDash([dashLen, gapLen]);
+                        ctx.lineDashOffset = -(flowOffset + delay);
+                        ctx.strokeStyle = `rgba(${baseColor.join(',')},${opacity})`;
+                        ctx.lineWidth = 1.5;
+                        ctx.moveTo(from.x, from.y);
+                        ctx.lineTo(to.x, to.y);
+                        ctx.stroke();
+                    });
+                });
+
+                ctx.restore();
+            });
+
+            // Animation loop
+            let animFrameId = null;
+            function animate() {
+                flowOffset += 0.4;
+                if (flowOffset > 220) flowOffset = 0;
+                networkInstance.redraw();
+                animFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Clean up animation on destroy
+            const origDestroy = networkInstance.destroy.bind(networkInstance);
+            networkInstance.destroy = function() {
+                if (animFrameId) cancelAnimationFrame(animFrameId);
+                origDestroy();
+            };
 
         } catch (error) {
             console.error('Failed to render graph from API:', error);
