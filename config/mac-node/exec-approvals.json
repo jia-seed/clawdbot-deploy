@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "defaults": {},
+  "agents": {
+    "*": {
+      "allowlist": [
+        { "pattern": "/usr/bin/*" },
+        { "pattern": "/bin/*" },
+        { "pattern": "/usr/sbin/*" },
+        { "pattern": "/opt/homebrew/bin/*" },
+        { "pattern": "/usr/local/bin/*" }
+      ]
+    }
+  }
+}
