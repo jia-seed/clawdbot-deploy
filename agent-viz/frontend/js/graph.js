@@ -1,5 +1,6 @@
 /**
  * Graph visualization using vis-network via API
+ * Top-down triangular layout: Agent -> Sessions -> Action chains by time
  */
 let networkInstance = null;
 
@@ -37,7 +38,6 @@ const GraphViz = {
                 return;
             }
 
-            // Load vis-network from CDN if not already loaded
             if (typeof vis === 'undefined' || !vis.Network) {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
@@ -48,27 +48,49 @@ const GraphViz = {
                 });
             }
 
-            // Filter out FOLLOWED_BY edges — they create linear chains
-            // Keep HAS_SESSION, CONTAINS, SPAWNED for tree structure
-            const treeEdges = data.edges.filter(e =>
-                e.type !== 'FOLLOWED_BY'
-            );
+            // Categorize edges
+            const hasSession = [];   // Agent -> Session
+            const followedBy = [];   // Action -> Action (temporal chain)
+            const contains = [];     // Session -> Action (all actions)
+            const spawned = [];      // Agent -> Agent
 
-            // Build adjacency: parent -> children from tree edges
-            const childrenOf = {};
-            const nodeById = {};
-            data.nodes.forEach(n => { nodeById[n.id] = n; });
-            treeEdges.forEach(e => {
-                if (!childrenOf[e.source]) childrenOf[e.source] = [];
-                childrenOf[e.source].push(e.target);
+            // Track which actions have an incoming FOLLOWED_BY
+            const hasIncomingFollow = new Set();
+
+            data.edges.forEach(e => {
+                if (e.type === 'HAS_SESSION') hasSession.push(e);
+                else if (e.type === 'FOLLOWED_BY') {
+                    followedBy.push(e);
+                    hasIncomingFollow.add(e.target);
+                }
+                else if (e.type === 'CONTAINS') contains.push(e);
+                else if (e.type === 'SPAWNED') spawned.push(e);
             });
 
-            // BFS from roots to assign levels (tree depth)
-            const levelMap = {};
-            const roots = data.nodes
-                .filter(n => n.type === 'Agent')
-                .map(n => n.id);
+            // Build display edges:
+            // 1. Agent -> Session (HAS_SESSION)
+            // 2. Session -> first action only (CONTAINS where target has no incoming FOLLOWED_BY)
+            // 3. Action -> Action (FOLLOWED_BY chains)
+            // 4. Agent -> Agent (SPAWNED)
+            const displayEdges = [
+                ...hasSession,
+                ...spawned,
+                ...followedBy,
+                ...contains.filter(e => !hasIncomingFollow.has(e.target))
+            ];
 
+            // BFS from agent roots to assign tree depth levels
+            const nodeSet = new Set(data.nodes.map(n => n.id));
+            const childrenOf = {};
+            displayEdges.forEach(e => {
+                if (nodeSet.has(e.source) && nodeSet.has(e.target)) {
+                    if (!childrenOf[e.source]) childrenOf[e.source] = [];
+                    childrenOf[e.source].push(e.target);
+                }
+            });
+
+            const levelMap = {};
+            const roots = data.nodes.filter(n => n.type === 'Agent').map(n => n.id);
             const queue = roots.map(id => ({ id, level: 0 }));
             const visited = new Set();
 
@@ -84,7 +106,7 @@ const GraphViz = {
                 });
             }
 
-            // Assign remaining unvisited nodes a default level
+            // Fallback for unvisited nodes
             data.nodes.forEach(n => {
                 if (!(n.id in levelMap)) {
                     if (n.type === 'Agent') levelMap[n.id] = 0;
@@ -96,25 +118,27 @@ const GraphViz = {
             const nodes = new vis.DataSet(
                 data.nodes.map(n => ({
                     id: n.id,
-                    label: (n.label || n.id).substring(0, 35),
+                    label: (n.label || n.id).substring(0, 30),
                     level: levelMap[n.id],
                     color: n.type === 'Agent' ? '#e94560' :
                            n.type === 'Session' ? '#0fbcf9' : '#ffffff',
                     shape: n.type === 'Agent' ? 'dot' :
                            n.type === 'Session' ? 'diamond' : 'dot',
-                    size: n.type === 'Agent' ? 30 : n.type === 'Session' ? 18 : 6,
-                    font: { color: '#ffffff', size: 10, face: 'Satoshi, sans-serif' }
+                    size: n.type === 'Agent' ? 28 : n.type === 'Session' ? 16 : 5,
+                    font: { color: '#ffffff', size: 9, face: 'Satoshi, sans-serif' }
                 }))
             );
 
             const edges = new vis.DataSet(
-                treeEdges.map(e => ({
-                    from: e.source,
-                    to: e.target,
-                    arrows: 'to',
-                    color: { color: '#444', opacity: 0.5 },
-                    smooth: { type: 'cubicBezier', roundness: 0.5 }
-                }))
+                displayEdges
+                    .filter(e => nodeSet.has(e.source) && nodeSet.has(e.target))
+                    .map(e => ({
+                        from: e.source,
+                        to: e.target,
+                        arrows: { to: { enabled: true, scaleFactor: 0.4 } },
+                        color: { color: '#333', opacity: 0.4 },
+                        smooth: { type: 'cubicBezier', roundness: 0.5 }
+                    }))
             );
 
             if (networkInstance) {
@@ -126,15 +150,13 @@ const GraphViz = {
                     hierarchical: {
                         direction: 'UD',
                         sortMethod: 'directed',
-                        levelSeparation: 50,
-                        nodeSpacing: 20,
-                        treeSpacing: 60,
+                        levelSeparation: 40,
+                        nodeSpacing: 15,
+                        treeSpacing: 40,
                         shakeTowards: 'roots'
                     }
                 },
-                physics: {
-                    enabled: false
-                },
+                physics: { enabled: false },
                 interaction: {
                     hover: true,
                     tooltipDelay: 100,
