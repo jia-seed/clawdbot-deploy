@@ -150,9 +150,9 @@ const GraphViz = {
                     hierarchical: {
                         direction: 'UD',
                         sortMethod: 'directed',
-                        levelSeparation: 40,
-                        nodeSpacing: 15,
-                        treeSpacing: 40,
+                        levelSeparation: 120,
+                        nodeSpacing: 100,
+                        treeSpacing: 120,
                         shakeTowards: 'roots'
                     }
                 },
