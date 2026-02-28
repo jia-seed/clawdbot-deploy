@@ -48,25 +48,34 @@ const GraphViz = {
                 });
             }
 
-            // Sort nodes by timestamp to assign hierarchical levels
-            const sorted = [...data.nodes].sort((a, b) => {
-                const ta = a.timestamp || a.createdAt || a.startedAt || '';
-                const tb = b.timestamp || b.createdAt || b.startedAt || '';
-                return ta.localeCompare(tb);
+            // Assign hierarchical levels by type and time buckets
+            // Agent=0, Session=1, Actions=2+ bucketed by time
+            const actions = data.nodes
+                .filter(n => n.type !== 'Agent' && n.type !== 'Session')
+                .map(n => ({
+                    ...n,
+                    ts: new Date(n.timestamp || n.createdAt || n.startedAt || 0).getTime()
+                }))
+                .sort((a, b) => a.ts - b.ts);
+
+            const levelMap = {};
+            data.nodes.forEach(n => {
+                if (n.type === 'Agent') levelMap[n.id] = 0;
+                else if (n.type === 'Session') levelMap[n.id] = 1;
             });
 
-            // Assign levels: Agents at top, then Sessions, then Actions by time
-            const levelMap = {};
-            let actionLevel = 2;
-            sorted.forEach(n => {
-                if (n.type === 'Agent') {
-                    levelMap[n.id] = 0;
-                } else if (n.type === 'Session') {
-                    levelMap[n.id] = 1;
-                } else {
-                    levelMap[n.id] = actionLevel++;
-                }
-            });
+            if (actions.length > 0) {
+                // Bucket actions into ~15-25 levels for a nice triangle
+                const targetLevels = Math.min(Math.max(Math.ceil(actions.length / 3), 8), 25);
+                const minTs = actions[0].ts;
+                const maxTs = actions[actions.length - 1].ts;
+                const range = maxTs - minTs || 1;
+
+                actions.forEach(n => {
+                    const t = (n.ts - minTs) / range; // 0..1
+                    levelMap[n.id] = 2 + Math.floor(t * (targetLevels - 1));
+                });
+            }
 
             const nodes = new vis.DataSet(
                 data.nodes.map(n => ({
