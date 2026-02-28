@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>ai-assistant-deploy-guide</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+h1 { border-bottom: 2px solid #000; padding-bottom: 10px; }
+h2 { margin-top: 40px; color: #333; }
+h3 { color: #555; }
+code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 20px; color: #666; }
+hr { border: none; border-top: 1px solid #eee; margin: 40px 0; }
+</style>
+</head>
+<body>
+<h1>Deploy Your Own AI Assistant for $4/Month</h1>
+<p></p>
+<h2>The Complete Guide to Running Claude-Powered Agents on a Cheap VPS</h2>
+<p></p>
+<hr>
+<p></p>
+<h1>Introduction</h1>
+<p></p>
+What if you could have your own AI assistant that:
+<li>Monitors your email and responds in your voice</li>
+<li>Manages your calendar and schedules meetings</li>
+<li>Runs 24/7 on a server you control</li>
+<li>Costs less than a coffee per month</li>
+<p></p>
+This isn't hypothetical. I run three AI assistants on a single $4/month server. They handle my email, remind me of tasks, and even send messages on my behalf.
+<p></p>
+This guide shows you exactly how to do the same.
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 1: Why Self-Host?</h1>
+<p></p>
+<strong>Cost comparison:</strong>
+<li>ChatGPT Plus: $20/month (and you still can't automate anything)</li>
+<li>Claude Pro: $20/month (same problem)</li>
+<li>Self-hosted AI agent: $4/month + API costs (~$5-10/month depending on usage)</li>
+<p></p>
+<strong>What you get:</strong>
+<li>Full automation (not just chat)</li>
+<li>Runs while you sleep</li>
+<li>Connects to your email, calendar, Discord, Slack</li>
+<li>Customizable personality and rules</li>
+<li>Your data stays on your server</li>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 2: What You'll Need</h1>
+<p></p>
+1. **A VPS (Virtual Private Server)** - $4-7/month
+   - Hetzner Cloud (recommended): €3.79/month for ARM server
+   - DigitalOcean: $4/month droplet
+   - Vultr: $5/month
+<p></p>
+2. **An Anthropic API key** - pay per use
+   - ~$0.01 per short conversation
+   - ~$5-10/month for moderate use
+<p></p>
+3. **Basic terminal knowledge**
+   - SSH into a server
+   - Run commands
+   - Edit text files
+<p></p>
+4. **30 minutes of setup time**
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 3: Server Setup</h1>
+<p></p>
+<h2>Step 1: Create your VPS</h2>
+<p></p>
+<h3>Hetzner (Recommended)</h3>
+1. Go to console.hetzner.cloud
+2. Create new project
+3. Add server:
+   - Location: Falkenstein or Helsinki (cheapest)
+   - Image: Ubuntu 24.04
+   - Type: CAX11 (ARM, 2 vCPU, 4GB RAM) - €3.79/month
+   - SSH key: Add your public key
+<p></p>
+<h3>DigitalOcean</h3>
+1. Create Droplet
+2. Ubuntu 24.04
+3. Basic plan, $4/month
+4. Add SSH key
+<p></p>
+<h2>Step 2: Connect to your server</h2>
+<p></p>
+<pre><code>
+ssh root@YOUR_SERVER_IP
+<pre><code>
+<p></p>
+<h2>Step 3: Initial setup</h2>
+<p></p>
+<pre><code>
+<h1>Update system</h1>
+apt update && apt upgrade -y
+<p></p>
+<h1>Install Node.js 22</h1>
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs
+<p></p>
+<h1>Create a non-root user</h1>
+useradd -m -s /bin/bash clawdbot
+usermod -aG sudo clawdbot
+<p></p>
+<h1>Switch to new user</h1>
+su - clawdbot
+<pre><code>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 4: Installing Clawdbot</h1>
+<p></p>
+Clawdbot is an open-source AI agent framework that makes this easy.
+<p></p>
+<pre><code>
+<h1>Install globally</h1>
+sudo npm install -g clawdbot
+<p></p>
+<h1>Initialize</h1>
+clawdbot init
+<p></p>
+<h1>Add your Anthropic API key</h1>
+clawdbot config set anthropic.apiKey YOUR_API_KEY
+<pre><code>
+<p></p>
+<h2>Configure your agent</h2>
+<p></p>
+Edit `~/.clawdbot/config.yaml`:
+<p></p>
+<pre><code>
+agent:
+  name: "assistant"
+  model: "claude-sonnet-4-20250514"
+  
+workspace:
+  path: "~/workspace"
+<pre><code>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 5: Connecting to Discord</h1>
+<p></p>
+Your AI assistant needs a way to talk to you. Discord is the easiest.
+<p></p>
+<h2>Create a Discord bot</h2>
+<p></p>
+1. Go to discord.com/developers/applications
+2. New Application → Name it
+3. Go to Bot → Reset Token → Copy it
+4. Enable these Privileged Intents:
+   - Message Content Intent
+   - Server Members Intent
+5. Go to OAuth2 → URL Generator
+   - Scopes: bot, applications.commands
+   - Permissions: Send Messages, Read Messages, etc.
+6. Copy the URL and open it to invite bot to your server
+<p></p>
+<h2>Add to Clawdbot</h2>
+<p></p>
+<pre><code>
+clawdbot config set discord.token YOUR_BOT_TOKEN
+clawdbot config set discord.channels.allowlist CHANNEL_ID
+<pre><code>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 6: Running as a Service</h1>
+<p></p>
+You want this running 24/7, even after reboots.
+<p></p>
+<pre><code>
+<h1>Create systemd service</h1>
+sudo nano /etc/systemd/system/clawdbot.service
+<pre><code>
+<p></p>
+<pre><code>
+[Unit]
+Description=Clawdbot AI Agent
+After=network.target
+<p></p>
+[Service]
+Type=simple
+User=clawdbot
+WorkingDirectory=/home/clawdbot
+ExecStart=/usr/bin/clawdbot gateway run
+Restart=always
+RestartSec=10
+<p></p>
+[Install]
+WantedBy=multi-user.target
+<pre><code>
+<p></p>
+<pre><code>
+<h1>Enable and start</h1>
+sudo systemctl enable clawdbot
+sudo systemctl start clawdbot
+<p></p>
+<h1>Check status</h1>
+sudo systemctl status clawdbot
+<pre><code>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 7: Adding Email Integration</h1>
+<p></p>
+Connect Gmail so your assistant can read and respond to emails.
+<p></p>
+<h2>Setup Google OAuth</h2>
+<p></p>
+1. Go to console.cloud.google.com
+2. Create project
+3. Enable Gmail API
+4. Create OAuth credentials
+5. Download credentials.json
+<p></p>
+<h2>Connect to Clawdbot</h2>
+<p></p>
+<pre><code>
+<h1>Install Google integration</h1>
+npm install -g gog-cli
+<p></p>
+<h1>Authenticate</h1>
+gog auth login --account your@email.com
+<pre><code>
+<p></p>
+Now your assistant can:
+<li>Read your inbox</li>
+<li>Send emails in your voice</li>
+<li>Schedule meetings based on your availability</li>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 8: Customizing Your Assistant</h1>
+<p></p>
+<h2>Personality (SOUL.md)</h2>
+<p></p>
+Create `~/workspace/SOUL.md`:
+<p></p>
+<pre><code>
+<h1>Who You Are</h1>
+<p></p>
+You're a helpful assistant. Be concise, friendly, and proactive.
+<p></p>
+<h2>Rules</h2>
+<li>Check email every 30 minutes</li>
+<li>Alert me for anything urgent</li>
+<li>Draft replies but ask before sending</li>
+<pre><code>
+<p></p>
+<h2>Memory</h2>
+<p></p>
+Your assistant remembers things in `~/workspace/memory/`:
+<li>Daily notes</li>
+<li>Long-term memories</li>
+<li>Preferences learned over time</li>
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 9: Running Multiple Assistants</h1>
+<p></p>
+Want separate assistants for different tasks? Run multiple instances.
+<p></p>
+<pre><code>
+<h1>Create directories</h1>
+mkdir -p /opt/clawdbot-{1,2,3}
+<p></p>
+<h1>Each gets its own config and workspace</h1>
+<h1>Instance 1: Research</h1>
+<h1>Instance 2: Operations  </h1>
+<h1>Instance 3: Strategy</h1>
+<pre><code>
+<p></p>
+Total cost: Still $4/month for the server, just more API usage.
+<p></p>
+<hr>
+<p></p>
+<h1>Chapter 10: Cost Optimization</h1>
+<p></p>
+<h2>Reduce API costs</h2>
+<p></p>
+1. **Use Claude Haiku for simple tasks** - 10x cheaper
+2. **Set up caching** - Don't re-process the same things
+3. **Batch operations** - Check email every 30 min, not every minute
+<p></p>
+<h2>My actual costs</h2>
+<p></p>
+<li>Server: $4/month</li>
+<li>API (3 assistants, moderate use): ~$8/month</li>
+<li>**Total: ~$12/month** for 3 AI assistants running 24/7</li>
+<p></p>
+<hr>
+<p></p>
+<h1>Quick Start Checklist</h1>
+<p></p>
+<li>[ ] Create Hetzner/DigitalOcean account</li>
+<li>[ ] Spin up $4 Ubuntu server</li>
+<li>[ ] SSH in and install Node.js</li>
+<li>[ ] Install Clawdbot</li>
+<li>[ ] Add Anthropic API key</li>
+<li>[ ] Create Discord bot and connect</li>
+<li>[ ] Set up systemd service</li>
+<li>[ ] Customize personality</li>
+<li>[ ] (Optional) Add email integration</li>
+<p></p>
+<hr>
+<p></p>
+<h1>Resources</h1>
+<p></p>
+<li>Clawdbot GitHub: github.com/clawdbot/clawdbot</li>
+<li>Clawdbot Docs: docs.clawd.bot</li>
+<li>Hetzner Cloud: hetzner.com/cloud</li>
+<li>Anthropic API: anthropic.com</li>
+<p></p>
+<hr>
+<p></p>
+<h1>About</h1>
+<p></p>
+This guide was written by someone running this exact setup. Three AI assistants, one cheap server, handling email, Discord, and automation daily.
+<p></p>
+Questions? The Clawdbot Discord community is helpful: discord.com/invite/clawd
+<p></p>
+<hr>
+<p></p>
+*Now go build your AI assistant.*
+</body></html>
