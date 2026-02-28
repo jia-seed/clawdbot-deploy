@@ -42,9 +42,9 @@ chown -R clawdbot:clawdbot "$STATE_DIR"
 # Create the cron job via clawdbot CLI
 CRON_MESSAGE="randomized check-in logic for $USER_NAME:
 
-1. read workspace/memory/checkin-state.json to get lastCheckinMs and lastCheckinResponded
+1. read memory/checkin-state.json to get lastCheckinMs and lastCheckinResponded
 2. calculate hours since last check-in
-3. check recent discord channel history to see if $USER_NAME responded since your last check-in. update lastCheckinResponded accordingly.
+3. use the discord message tool with target channel:$CHANNEL_ID and action read to check if $USER_NAME responded since your last check-in. update lastCheckinResponded accordingly.
 4. decide whether to send:
    - if lastCheckinResponded is false: do NOT send, just update state file and reply NO_REPLY
    - if less than 2 hours since last: do NOT send, reply NO_REPLY  
