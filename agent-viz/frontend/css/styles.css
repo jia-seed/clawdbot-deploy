@@ -177,11 +177,11 @@ header h1 {
 
 /* Graph */
 .graph-panel {
-    min-height: 500px;
+    min-height: 800px;
 }
 
 #graph-container {
-    height: 500px;
+    height: 2400px;
     background: var(--bg);
 }
 
