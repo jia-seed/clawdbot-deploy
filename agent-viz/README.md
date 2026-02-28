@@ -1,6 +1,6 @@
-# Agent-Viz: Clawdbot Activity Visualization Dashboard
+# jiawdbot activity dashboard
 
-Real-time visualization of Clawdbot and subagent actions using Neo4j graph database.
+real-time visualization of clawdbot and subagent actions using neo4j graph database.
 
 ## Architecture
 
