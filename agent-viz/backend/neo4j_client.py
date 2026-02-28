@@ -158,47 +158,56 @@ class Neo4jClient:
             }
 
     def get_graph_data(self, limit: int = 100) -> dict:
-        """Get graph data for visualization — returns a proper tree."""
+        """Get graph data for visualization — proper tree structure."""
         with self.driver.session() as session:
-            # Get agent + recent sessions with their full action chains
+            # Step 1: Get agent + recent sessions
             result = session.run("""
                 MATCH (a:Agent)-[:HAS_SESSION]->(s:Session)
-                WITH a, s ORDER BY s.started_at DESC LIMIT $session_limit
-                OPTIONAL MATCH (s)-[:CONTAINS]->(ac:Action)
-                WHERE NOT EXISTS { MATCH (:Action)-[:FOLLOWED_BY]->(ac) }
-                OPTIONAL MATCH chain = (ac)-[:FOLLOWED_BY*0..]->(next:Action)
-                WITH a, s, nodes(chain) as chainNodes
-                UNWIND chainNodes as action
-                WITH a, s, action
-                WHERE action IS NOT NULL
-                RETURN
-                    collect(DISTINCT {id: a.id, label: a.name, type: 'Agent'}) as agents,
-                    collect(DISTINCT {id: s.id, label: coalesce(s.label, s.id), type: 'Session'}) as sessions,
-                    collect(DISTINCT {id: action.id, label: coalesce(action.name, action.type), type: 'Action'}) as actions
-            """, session_limit=min(limit // 10, 15))
+                WITH a, s ORDER BY s.started_at DESC LIMIT $slimit
+                RETURN collect(DISTINCT {id: a.id, label: a.name, type: 'Agent'}) as agents,
+                       collect(DISTINCT {id: s.id, label: coalesce(s.label, s.id), type: 'Session'}) as sessions
+            """, slimit=min(limit // 5, 15))
 
             record = result.single()
             nodes = []
             node_ids = set()
+            session_ids = []
             if record:
-                for group in ["agents", "sessions", "actions"]:
-                    for n in record[group]:
-                        if n["id"] and n["id"] not in node_ids:
-                            nodes.append(n)
-                            node_ids.add(n["id"])
+                for a in record["agents"]:
+                    if a["id"] and a["id"] not in node_ids:
+                        nodes.append(a)
+                        node_ids.add(a["id"])
+                for s in record["sessions"]:
+                    if s["id"] and s["id"] not in node_ids:
+                        nodes.append(s)
+                        node_ids.add(s["id"])
+                        session_ids.append(s["id"])
 
-            # Get edges only between returned nodes
+            # Step 2: Get all actions for those sessions
+            if session_ids:
+                actions_result = session.run("""
+                    MATCH (s:Session)-[:CONTAINS]->(ac:Action)
+                    WHERE s.id IN $sids
+                    RETURN DISTINCT ac.id as id, coalesce(ac.name, ac.type) as label, 'Action' as type
+                """, sids=session_ids)
+
+                for r in actions_result:
+                    if r["id"] and r["id"] not in node_ids:
+                        nodes.append({"id": r["id"], "label": r["label"], "type": r["type"]})
+                        node_ids.add(r["id"])
+
+            # Step 3: Get all edges between returned nodes
+            edges = []
             if node_ids:
+                ids = list(node_ids)
                 edges_result = session.run("""
                     MATCH (a)-[r]->(b)
                     WHERE a.id IN $ids AND b.id IN $ids
                     RETURN a.id as source, b.id as target, type(r) as type
-                """, ids=list(node_ids))
+                """, ids=ids)
 
                 edges = [{"source": r["source"], "target": r["target"], "type": r["type"]}
                          for r in edges_result if r["source"] and r["target"]]
-            else:
-                edges = []
 
             return {"nodes": nodes, "edges": edges}
 
