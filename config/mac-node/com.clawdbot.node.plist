@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.clawdbot.node</string>
+    <key>Comment</key>
+    <string>Clawdbot Node Host</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/node</string>
+        <string>/opt/homebrew/lib/node_modules/clawdbot/dist/entry.js</string>
+        <string>node</string>
+        <string>run</string>
+        <string>--host</string>
+        <string>127.0.0.1</string>
+        <string>--port</string>
+        <string>18789</string>
+        <string>--display-name</string>
+        <string>audreys-mac</string>
+    </array>
+    <key>StandardOutPath</key>
+    <string>/Users/audreychen/.clawdbot/logs/node.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/audreychen/.clawdbot/logs/node.err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>/Users/audreychen</string>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>
