@@ -1,5 +1,13 @@
 /* jiawdbot activity dashboard */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+@font-face {
+    font-family: 'Satoshi';
+    src: url('../fonts/Satoshi-Variable.woff2') format('woff2');
+    font-weight: 300 900;
+    font-display: swap;
+    font-style: normal;
+}
 
 :root {
     --bg: #000000;
@@ -26,7 +34,7 @@
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Satoshi', system-ui, -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
@@ -95,7 +103,7 @@ header h1 {
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.85rem;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Satoshi', system-ui, sans-serif;
     font-weight: 500;
     transition: all 0.2s;
 }
@@ -160,7 +168,7 @@ header h1 {
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.8rem;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Satoshi', system-ui, sans-serif;
     transition: all 0.15s;
 }
 
