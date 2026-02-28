@@ -196,18 +196,37 @@ class Neo4jClient:
                         nodes.append({"id": r["id"], "label": r["label"], "type": r["type"]})
                         node_ids.add(r["id"])
 
-            # Step 3: Get all edges between returned nodes
+            # Step 3: Get edges scoped to our sessions
             edges = []
-            if node_ids:
-                ids = list(node_ids)
+            if session_ids:
+                # HAS_SESSION edges
                 edges_result = session.run("""
-                    MATCH (a)-[r]->(b)
-                    WHERE a.id IN $ids AND b.id IN $ids
-                    RETURN a.id as source, b.id as target, type(r) as type
-                """, ids=ids)
+                    MATCH (a:Agent)-[r:HAS_SESSION]->(s:Session)
+                    WHERE s.id IN $sids
+                    RETURN a.id as source, s.id as target, 'HAS_SESSION' as type
+                """, sids=session_ids)
+                edges.extend([{"source": r["source"], "target": r["target"], "type": r["type"]}
+                              for r in edges_result])
 
-                edges = [{"source": r["source"], "target": r["target"], "type": r["type"]}
-                         for r in edges_result if r["source"] and r["target"]]
+                # CONTAINS edges (session -> action)
+                edges_result = session.run("""
+                    MATCH (s:Session)-[r:CONTAINS]->(ac:Action)
+                    WHERE s.id IN $sids
+                    RETURN s.id as source, ac.id as target, 'CONTAINS' as type
+                """, sids=session_ids)
+                edges.extend([{"source": r["source"], "target": r["target"], "type": r["type"]}
+                              for r in edges_result if r["target"] in node_ids])
+
+                # FOLLOWED_BY edges (action -> action within our sessions)
+                action_ids = list(node_ids - set(session_ids))
+                if action_ids:
+                    edges_result = session.run("""
+                        MATCH (a:Action)-[r:FOLLOWED_BY]->(b:Action)
+                        WHERE a.id IN $aids AND b.id IN $aids
+                        RETURN a.id as source, b.id as target, 'FOLLOWED_BY' as type
+                    """, aids=action_ids)
+                    edges.extend([{"source": r["source"], "target": r["target"], "type": r["type"]}
+                                  for r in edges_result])
 
             return {"nodes": nodes, "edges": edges}
 
