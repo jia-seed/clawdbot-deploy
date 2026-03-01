@@ -14,6 +14,7 @@
 - [google workspace](docs/google_workspace_setup.md)
 - [mac node setup](docs/mac_node_setup.md)
 - [custom check-ins](docs/custom_checkins.md)
+- [cache-ttl pruning](docs/cache_ttl_pruning.md) - reduce context bloat + costs
 
 ## scripts
 
