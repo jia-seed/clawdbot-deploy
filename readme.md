@@ -4,7 +4,7 @@
 [![hetzner](https://img.shields.io/badge/hosted%20on-hetzner-red)](https://www.hetzner.com/cloud)
 [![license](https://img.shields.io/badge/license-MIT-green)](license)
 
-3 clawdbot instances on a hetzner vm (~$4/month).
+3 clawdbot instances on a hetzner vm (~$4/month), connected to discord
 
 ## docs
 
