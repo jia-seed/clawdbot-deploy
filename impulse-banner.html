@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+  width: 1500px; 
+  height: 500px; 
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial Black', Arial, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+.glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,215,0,0.4) 0%, transparent 70%);
+  top: -50px;
+  right: 100px;
+}
+.glow2 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0,191,255,0.25) 0%, transparent 70%);
+  bottom: -100px;
+  left: 50px;
+}
+.container {
+  text-align: center;
+  z-index: 10;
+}
+.logo {
+  font-size: 110px;
+  font-weight: 900;
+  background: linear-gradient(180deg, #FFD700 0%, #FFA500 50%, #FF6B00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -3px;
+}
+.bolt {
+  font-size: 90px;
+  display: inline-block;
+  color: #FFD700;
+  -webkit-text-fill-color: #FFD700;
+}
+.tagline {
+  font-size: 26px;
+  color: #ffffff;
+  letter-spacing: 12px;
+  margin-top: 15px;
+  text-transform: uppercase;
+}
+.line {
+  width: 350px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #FFD700, transparent);
+  margin: 15px auto;
+}
+.sub {
+  font-size: 14px;
+  color: #888;
+  letter-spacing: 3px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="glow2"></div>
+<div class="container">
+<div class="logo"><span class="bolt">⚡</span> IMPULSE <span class="bolt">⚡</span></div>
+<div class="line"></div>
+<div class="tagline">Feel The Pulse</div>
+<div class="sub">ESPORTS • GAMING • COMMUNITY</div>
+</div>
+</body>
+</html>
