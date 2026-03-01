@@ -1,6 +1,7 @@
 # state files
 *.json
 !config/*.json
+!shared-brain/*.json
 
 # deploy keys
 .deploy-key/
