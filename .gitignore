@@ -1,7 +1,9 @@
 # state files
 *.json
 !config/*.json
-!shared-brain/*.json
+
+# sensitive data (lives in clawdbot-memory)
+shared-brain/
 
 # deploy keys
 .deploy-key/
