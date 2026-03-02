@@ -2,6 +2,15 @@
 
 Skills define *how* tools work. This file is for *your* specifics — the stuff that's unique to your setup.
 
+## Email (gog gmail)
+
+**Never use --reply-all blindly.** If someone was BCC'd, reply-all exposes them.
+
+Instead:
+- Read the original TO/CC fields
+- Explicitly set --to with only the people who should be on the thread
+- For intros: reply to introducer + new contact, or just new contact if intro should drop off
+
 ## What Goes Here
 
 Things like:
