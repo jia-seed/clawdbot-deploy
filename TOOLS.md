@@ -11,6 +11,10 @@ Instead:
 - Explicitly set --to with only the people who should be on the thread
 - For intros: reply to introducer + new contact, or just new contact if intro should drop off
 
+**Scheduling:** Don't offer multiple times or say "i'm pretty open". Suggest ONE specific 30-min slot, e.g. "does 10:30am wednesday 3/4 work?"
+
+**Before suggesting ANY time:** Check ALL 3 calendars first (jiachiachen, audgeviolin07, jia@spreadjam) to avoid double booking. Never suggest a slot without verifying it's actually free.
+
 ## What Goes Here
 
 Things like:
