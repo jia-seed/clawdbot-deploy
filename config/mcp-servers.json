@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "iris-todo": {
+      "type": "http",
+      "url": "https://api.iriscal.app/mcp/http",
+      "headers": {
+        "Authorization": "Bearer irs_sk_ebf77f113cef2cbb018bdd1f857fba5e774b4471"
+      }
+    }
+  }
+}
