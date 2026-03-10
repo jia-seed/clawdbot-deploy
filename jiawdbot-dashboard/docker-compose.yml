@@ -3,7 +3,7 @@ version: '3.8'
 services:
   neo4j:
     image: neo4j:5
-    container_name: agent-viz-neo4j
+    container_name: jiawdbot-dashboard-neo4j
     ports:
       - "7474:7474"  # HTTP
       - "7687:7687"  # Bolt
@@ -16,7 +16,7 @@ services:
       - neo4j_data:/data
       - neo4j_logs:/logs
     networks:
-      - agent-viz-net
+      - jiawdbot-dashboard-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7474"]
       interval: 10s
@@ -27,7 +27,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: agent-viz-backend
+    container_name: jiawdbot-dashboard-backend
     ports:
       - "8000:8000"
     environment:
@@ -43,12 +43,12 @@ services:
       neo4j:
         condition: service_started
     networks:
-      - agent-viz-net
+      - jiawdbot-dashboard-net
 
 volumes:
   neo4j_data:
   neo4j_logs:
 
 networks:
-  agent-viz-net:
+  jiawdbot-dashboard-net:
     driver: bridge

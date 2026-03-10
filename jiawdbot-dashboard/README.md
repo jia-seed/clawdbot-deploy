@@ -38,7 +38,7 @@ real-time visualization of clawdbot and subagent actions using neo4j graph datab
 Using Docker:
 ```bash
 docker run -d \
-  --name neo4j-agent-viz \
+  --name neo4j-jiawdbot-dashboard \
   -p 7474:7474 -p 7687:7687 \
   -e NEO4J_AUTH=neo4j/agentvizsecret \
   -e NEO4J_PLUGINS='["apoc"]' \

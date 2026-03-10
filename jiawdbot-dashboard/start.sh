@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quick start script for agent-viz
+# Quick start script for jiawdbot-dashboard
 
 set -e
 
