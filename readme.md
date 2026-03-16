@@ -2,9 +2,28 @@
 
 [![clawdbot](https://img.shields.io/badge/powered%20by-clawdbot-blue)](https://github.com/clawdbot/clawdbot)
 [![hetzner](https://img.shields.io/badge/hosted%20on-hetzner-red)](https://www.hetzner.com/cloud)
+[![deepseek](https://img.shields.io/badge/model-deepseek--chat-purple)](https://openrouter.ai/deepseek/deepseek-chat)
 [![license](https://img.shields.io/badge/license-MIT-green)](license)
 
 3 clawdbot instances on a hetzner vm (~$4/month), connected to discord
+
+## model
+
+runs **deepseek-chat** via [openrouter](https://openrouter.ai) (`openrouter/deepseek/deepseek-chat`)
+
+set `OPENROUTER_API_KEY` in each instance `.env` and configure the primary model in `.clawdbot/clawdbot.json`:
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/deepseek/deepseek-chat"
+      }
+    }
+  }
+}
+```
 
 ## docs
 
